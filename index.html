@@ -478,8 +478,7 @@ L.control.layers(baseLayers, overlays, { position: 'topright', collapsed: false 
   canvas.width  = canvas.offsetWidth  || 800;
   canvas.height = canvas.offsetHeight || 200;
 
-  const ctx   = canvas;
-  const c     = ctx.getContext('2d');
+  const c     = canvas.getContext('2d');
   const W     = canvas.width;
   const H     = canvas.height;
 
@@ -563,8 +562,6 @@ L.control.layers(baseLayers, overlays, { position: 'topright', collapsed: false 
     pts.forEach(p => c.lineTo(xOf(p.km), yOf(p.elev)));
     c.lineTo(xOf(pts[pts.length - 1].km), yOf(0));
     c.closePath();
-    c.fillStyle = color.replace(')', ', 0.15)').replace('rgb', 'rgba');
-    // Use hex-based fill with opacity instead
     c.globalAlpha = 0.15;
     c.fillStyle = color;
     c.fill();
