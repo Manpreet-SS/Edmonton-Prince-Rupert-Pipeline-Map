@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Edmonton–Prince Rupert Pipeline — Interactive Route Map</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: sans-serif; background: #f0f0f0; }
+
+    #header {
+      background: #1a1a2e;
+      color: #fff;
+      text-align: center;
+      padding: 12px 16px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      letter-spacing: 0.02em;
+    }
+
+    #map {
+      width: 100%;
+      height: calc(100vh - 280px);
+      min-height: 350px;
+    }
+
+    #elevation-wrapper {
+      background: #fff;
+      padding: 10px 20px 16px;
+      height: 220px;
+    }
+
+    #elevation-canvas {
+      width: 100%;
+      height: 200px;
+      display: block;
+    }
+
+    /* Info panel */
+    .info-panel {
+      background: rgba(255,255,255,0.96);
+      border-radius: 6px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      padding: 0;
+      min-width: 220px;
+      max-width: 260px;
+      font-size: 12px;
+    }
+    .info-panel h3 {
+      background: #1a1a2e;
+      color: #fff;
+      margin: 0;
+      padding: 8px 12px;
+      border-radius: 6px 6px 0 0;
+      cursor: pointer;
+      font-size: 13px;
+      user-select: none;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .info-panel h3 .toggle-icon { font-size: 10px; }
+    .info-panel .info-body { padding: 8px 12px 10px; }
+    .info-panel table { border-collapse: collapse; width: 100%; }
+    .info-panel td { padding: 2px 4px; vertical-align: top; }
+    .info-panel td:first-child { font-weight: bold; white-space: nowrap; padding-right: 8px; }
+
+    /* Legend panel */
+    .legend-panel {
+      background: rgba(255,255,255,0.96);
+      border-radius: 6px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      padding: 10px 14px;
+      font-size: 12px;
+      line-height: 1.6;
+      min-width: 190px;
+    }
+    .legend-panel h4 {
+      margin: 0 0 6px;
+      font-size: 13px;
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 4px;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      margin-bottom: 3px;
+    }
+    .legend-line {
+      width: 28px;
+      height: 4px;
+      display: inline-block;
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+    .legend-line.dashed {
+      background: repeating-linear-gradient(to right, #f97316 0, #f97316 5px, transparent 5px, transparent 9px);
+      height: 4px;
+    }
+    .legend-circle {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 2px solid rgba(0,0,0,0.4);
+      flex-shrink: 0;
+    }
+    .legend-swatch {
+      width: 18px;
+      height: 12px;
+      border-radius: 3px;
+      flex-shrink: 0;
+      opacity: 0.7;
+    }
+    .legend-section-title {
+      font-weight: bold;
+      margin-top: 6px;
+      margin-bottom: 2px;
+      font-size: 11px;
+      color: #555;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    @media (max-width: 600px) {
+      #header { font-size: 0.85rem; padding: 8px; }
+      #elevation-wrapper { height: 180px; }
+      #elevation-canvas { height: 160px; }
+    }
+  </style>
+</head>
+<body>
+  <div id="header">🛢️ Edmonton–Prince Rupert Pipeline — Interactive Route Map</div>
+  <div id="map"></div>
+  <div id="elevation-wrapper">
+    <canvas id="elevation-canvas"></canvas>
+  </div>
+
+<script>
+// ───────────────────────────── DATA ─────────────────────────────
+
+const waypoints = [
+  { name: "Edmonton",              lat: 53.5461, lon: -113.4937, elev: 668,  km: 0,    desc: "Start / Origin", special: "Tank Farm — PS-1" },
+  { name: "Spruce Grove",          lat: 53.5451, lon: -113.9009, elev: 690,  km: 30,   desc: "Standard section", special: "" },
+  { name: "Whitecourt",            lat: 54.1424, lon: -115.6831, elev: 782,  km: 180,  desc: "Standard section", special: "PS-2 Booster" },
+  { name: "Fox Creek",             lat: 54.3980, lon: -116.8030, elev: 870,  km: 270,  desc: "Standard section", special: "PS-3 Booster" },
+  { name: "Valleyview",            lat: 55.0686, lon: -117.2900, elev: 760,  km: 355,  desc: "Standard section", special: "PS-4 Booster" },
+  { name: "Grande Prairie",        lat: 55.1707, lon: -118.7946, elev: 669,  km: 460,  desc: "Standard section", special: "PS-5 Booster + Pig Launcher" },
+  { name: "Hythe",                 lat: 55.2833, lon: -119.4833, elev: 695,  km: 500,  desc: "Standard section", special: "" },
+  { name: "Dawson Creek",          lat: 55.7596, lon: -120.2353, elev: 665,  km: 530,  desc: "Standard section", special: "" },
+  { name: "Chetwynd",              lat: 55.6976, lon: -121.6322, elev: 610,  km: 590,  desc: "Standard section", special: "PS-6 Booster (Pre-Mountain)" },
+  { name: "Kennedy",               lat: 55.2000, lon: -122.2000, elev: 730,  km: 710,  desc: "Standard section", special: "PS-7 Booster / Pressure Control" },
+  { name: "Bear Lake",             lat: 54.9500, lon: -122.6500, elev: 700,  km: 750,  desc: "Standard section", special: "" },
+  { name: "Salmon Valley",         lat: 54.2500, lon: -122.7500, elev: 640,  km: 810,  desc: "Standard section", special: "PS-8 Booster" },
+  { name: "Prince George",         lat: 53.9171, lon: -122.7497, elev: 575,  km: 990,  desc: "Standard section", special: "PS-9 MAJOR HUB + Tank + Pig Station" },
+  { name: "Vanderhoof",            lat: 54.0166, lon: -124.0035, elev: 690,  km: 1055, desc: "Standard section", special: "PS-10 Booster" },
+  { name: "Fort Fraser",           lat: 54.0500, lon: -124.8500, elev: 737,  km: 1095, desc: "Standard section", special: "" },
+  { name: "Endako",                lat: 54.0833, lon: -125.0333, elev: 850,  km: 1130, desc: "Standard section", special: "" },
+  { name: "Burns Lake",            lat: 54.2300, lon: -125.7600, elev: 735,  km: 1185, desc: "Standard section / Micro-opt start", special: "PS-11 Booster" },
+  { name: "Broman Lake",           lat: 54.2300, lon: -126.0000, elev: 700,  km: 1210, desc: "Micro-optimized zone", special: "" },
+  { name: "Houston",               lat: 54.3966, lon: -126.6410, elev: 600,  km: 1260, desc: "Micro-optimized zone", special: "PS-12 Booster + Pig Launcher; HDD-1: Bulkley River" },
+  { name: "North Bulkley",         lat: 54.4500, lon: -126.8000, elev: 560,  km: 1280, desc: "Micro-optimized zone", special: "" },
+  { name: "Round Lake",            lat: 54.5000, lon: -127.0000, elev: 520,  km: 1305, desc: "Micro-optimized zone", special: "" },
+  { name: "Evelyn",                lat: 54.5200, lon: -127.1200, elev: 500,  km: 1325, desc: "Micro-optimized zone", special: "" },
+  { name: "South Hazelton",        lat: 55.0700, lon: -127.6700, elev: 280,  km: 1380, desc: "Micro-optimized zone", special: "PS-13 Pressure Reducing; HDD-3: Bulkley-Skeena Confluence" },
+  { name: "Woodcock",              lat: 54.9800, lon: -128.0000, elev: 210,  km: 1400, desc: "Micro-optimized zone", special: "" },
+  { name: "Usk",                   lat: 54.6300, lon: -128.4200, elev: 160,  km: 1420, desc: "Micro-optimized zone", special: "" },
+  { name: "Terrace",               lat: 54.5164, lon: -128.5997, elev: 70,   km: 1475, desc: "Micro-opt end / Standard section", special: "PS-14 Pressure Reducing + Booster" },
+  { name: "Skeena",                lat: 54.4500, lon: -128.9000, elev: 40,   km: 1510, desc: "Standard section", special: "" },
+  { name: "Galloway Rapids Bridge",lat: 54.3500, lon: -129.2000, elev: 15,   km: 1540, desc: "Standard section", special: "Bridge crossing" },
+  { name: "Prince Rupert",         lat: 54.3150, lon: -130.3208, elev: 0,    km: 1715, desc: "Terminal", special: "PS-15 Terminal + Tank Farm + Marine Loading" },
+];
+
+const pumpStations = [
+  { id: "PS-1",  name: "Edmonton",       lat: 53.5461, lon: -113.4937, type: "Origin / Tank Farm",                         km: 0    },
+  { id: "PS-2",  name: "Whitecourt",     lat: 54.1424, lon: -115.6831, type: "Booster",                                    km: 180  },
+  { id: "PS-3",  name: "Fox Creek",      lat: 54.3980, lon: -116.8030, type: "Booster",                                    km: 270  },
+  { id: "PS-4",  name: "Valleyview",     lat: 55.0686, lon: -117.2900, type: "Booster",                                    km: 355  },
+  { id: "PS-5",  name: "Grande Prairie", lat: 55.1707, lon: -118.7946, type: "Booster + Pig Launcher",                     km: 460  },
+  { id: "PS-6",  name: "Chetwynd",       lat: 55.6976, lon: -121.6322, type: "Booster (Pre-Mountain)",                     km: 590  },
+  { id: "PS-7",  name: "Kennedy",        lat: 55.2000, lon: -122.2000, type: "Booster / Pressure Control",                 km: 710  },
+  { id: "PS-8",  name: "Salmon Valley",  lat: 54.2500, lon: -122.7500, type: "Booster",                                    km: 810  },
+  { id: "PS-9",  name: "Prince George",  lat: 53.9171, lon: -122.7497, type: "MAJOR HUB + Tank + Pig Station",             km: 990  },
+  { id: "PS-10", name: "Vanderhoof",     lat: 54.0166, lon: -124.0035, type: "Booster",                                    km: 1055 },
+  { id: "PS-11", name: "Burns Lake",     lat: 54.2300, lon: -125.7600, type: "Booster",                                    km: 1185 },
+  { id: "PS-12", name: "Houston",        lat: 54.3966, lon: -126.6410, type: "Booster + Pig Launcher",                     km: 1260 },
+  { id: "PS-13", name: "South Hazelton", lat: 55.0700, lon: -127.6700, type: "Pressure Reducing",                          km: 1380 },
+  { id: "PS-14", name: "Terrace",        lat: 54.5164, lon: -128.5997, type: "Pressure Reducing + Booster",                km: 1475 },
+  { id: "PS-15", name: "Prince Rupert",  lat: 54.3150, lon: -130.3208, type: "Terminal + Tank Farm + Marine Loading",      km: 1715 },
+];
+
+const hddCrossings = [
+  { id: "HDD-1", name: "Bulkley River at Houston",      lat: 54.3966, lon: -126.6410, desc: "1,200m HDD, 25m deep — Steelhead/Salmon protection" },
+  { id: "HDD-2", name: "Hagwilget",                     lat: 55.0500, lon: -127.5800, desc: "600m HDD, 20m deep — Under community" },
+  { id: "HDD-3", name: "Bulkley-Skeena Confluence",     lat: 55.0700, lon: -127.6700, desc: "2,000m HDD, 30m deep — MOST CRITICAL CROSSING" },
+  { id: "HDD-4", name: "Gitwangak",                     lat: 55.1000, lon: -127.9500, desc: "500m HDD, 15m deep — Under village" },
+  { id: "HDD-5", name: "Kitsumkalum River",              lat: 54.5300, lon: -128.5500, desc: "800m HDD, 15m deep — Salmon river" },
+];
+
+// Territory definitions: [startWptIdx, endWptIdx (inclusive), name, color, fillOpacity, label?]
+const territories = [
+  { name: "Treaty 6",                  startIdx: 0,  endIdx: 2,  color: "#3388ff", fillOpacity: 0.12, label: false },
+  { name: "Treaty 8 AB",               startIdx: 2,  endIdx: 8,  color: "#33cc33", fillOpacity: 0.12, label: false },
+  { name: "Treaty 8 BC / Carrier Sekani", startIdx: 8, endIdx: 16, color: "#9933ff", fillOpacity: 0.12, label: false },
+  { name: "Wet'suwet'en",              startIdx: 16, endIdx: 22, color: "#ff3333", fillOpacity: 0.18, label: true  },
+  { name: "Gitxsan",                   startIdx: 22, endIdx: 24, color: "#ff9933", fillOpacity: 0.18, label: true  },
+  { name: "Kitselas/Kitsumkalum",      startIdx: 24, endIdx: 26, color: "#33cccc", fillOpacity: 0.12, label: false },
+  { name: "Tsimshian",                 startIdx: 26, endIdx: 28, color: "#ffcc33", fillOpacity: 0.12, label: false },
+];
+
+// ────────────────────────── MAP INIT ────────────────────────────
+
+const map = L.map('map', { zoomControl: true }).setView([54.5, -122.0], 5);
+
+const osmLayer = L.tileLayer(
+  'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+  { maxZoom: 19, attribution: '© OpenStreetMap contributors' }
+).addTo(map);
+
+const topoLayer = L.tileLayer(
+  'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
+  { maxZoom: 17, attribution: '© OpenTopoMap contributors' }
+);
+
+// ─────────────────────── LAYER GROUPS ───────────────────────────
+
+const pipelineLayer     = L.layerGroup();
+const waypointLayer     = L.layerGroup();
+const pumpLayer         = L.layerGroup();
+const hddLayer          = L.layerGroup();
+const territoryLayer    = L.layerGroup();
+
+// ──────────────────── PIPELINE ROUTE LINES ──────────────────────
+
+// Standard section 1: waypoints 0–16 (indices, Km 0–1185)
+const stdCoords1 = waypoints.slice(0, 17).map(w => [w.lat, w.lon]);
+L.polyline(stdCoords1, { color: '#e53935', weight: 4, opacity: 0.9 }).addTo(pipelineLayer);
+
+// Micro-optimized zone: waypoints 16–25 (Km 1185–1475, Burns Lake to Terrace)
+const microCoords = waypoints.slice(16, 26).map(w => [w.lat, w.lon]);
+L.polyline(microCoords, { color: '#f97316', weight: 5, opacity: 0.95, dashArray: '10, 7' }).addTo(pipelineLayer);
+
+// Standard section 2: waypoints 25–28 (Km 1475–1715)
+const stdCoords2 = waypoints.slice(25, 29).map(w => [w.lat, w.lon]);
+L.polyline(stdCoords2, { color: '#e53935', weight: 4, opacity: 0.9 }).addTo(pipelineLayer);
+
+pipelineLayer.addTo(map);
+
+// ───────────────────────── WAYPOINTS ────────────────────────────
+
+waypoints.forEach((wp, i) => {
+  const isEndpoint = i === 0 || i === waypoints.length - 1;
+  const isInMicro  = wp.km >= 1185 && wp.km <= 1475;
+  const fillColor  = isInMicro ? '#f97316' : '#e53935';
+
+  const marker = L.circleMarker([wp.lat, wp.lon], {
+    radius:      isEndpoint ? 10 : 6,
+    color:       '#fff',
+    weight:      2,
+    fillColor:   fillColor,
+    fillOpacity: 0.9,
+  });
+
+  marker.bindPopup(
+    `<strong>${wp.name}</strong><br/>
+     Km: ${wp.km.toLocaleString()}<br/>
+     Elevation: ${wp.elev} m<br/>
+     Segment: ${wp.desc}${wp.special ? '<br/><em>' + wp.special + '</em>' : ''}`
+  );
+
+  marker.addTo(waypointLayer);
+});
+
+waypointLayer.addTo(map);
+
+// ───────────────────────── PUMP STATIONS ─────────────────────────
+
+pumpStations.forEach(ps => {
+  const marker = L.circleMarker([ps.lat, ps.lon], {
+    radius:      8,
+    color:       '#b8860b',
+    weight:      2,
+    fillColor:   '#ffd700',
+    fillOpacity: 0.95,
+  });
+
+  marker.bindPopup(
+    `<strong>${ps.id} — ${ps.name}</strong><br/>
+     Type: ${ps.type}<br/>
+     Km: ${ps.km.toLocaleString()}`
+  );
+
+  marker.addTo(pumpLayer);
+});
+
+pumpLayer.addTo(map);
+
+// ─────────────────────────── HDD CROSSINGS ──────────────────────
+
+hddCrossings.forEach(hdd => {
+  const marker = L.circleMarker([hdd.lat, hdd.lon], {
+    radius:      8,
+    color:       '#1565c0',
+    weight:      2,
+    fillColor:   '#1e88e5',
+    fillOpacity: 0.9,
+  });
+
+  marker.bindPopup(
+    `<strong>${hdd.id} — ${hdd.name}</strong><br/>${hdd.desc}`
+  );
+
+  marker.addTo(hddLayer);
+});
+
+hddLayer.addTo(map);
+
+// ───────────────────── INDIGENOUS TERRITORIES ───────────────────
+
+territories.forEach(t => {
+  const pts = waypoints.slice(t.startIdx, t.endIdx + 1);
+  const lats = pts.map(p => p.lat);
+  const lons = pts.map(p => p.lon);
+  const pad  = 0.3;
+  const minLat = Math.min(...lats) - pad;
+  const maxLat = Math.max(...lats) + pad;
+  const minLon = Math.min(...lons) - pad;
+  const maxLon = Math.max(...lons) + pad;
+
+  const polygon = L.rectangle(
+    [[minLat, minLon], [maxLat, maxLon]],
+    {
+      color:       t.color,
+      weight:      1.5,
+      fillColor:   t.color,
+      fillOpacity: t.fillOpacity,
+      dashArray:   '4,4',
+    }
+  );
+
+  polygon.bindPopup(`<strong>${t.name}</strong><br/>Indigenous Territory`);
+  polygon.addTo(territoryLayer);
+});
+
+territoryLayer.addTo(map);
+
+// ───────────────────────── INFO PANEL ───────────────────────────
+
+const InfoControl = L.Control.extend({
+  options: { position: 'topleft' },
+  onAdd() {
+    const div = L.DomUtil.create('div', 'info-panel');
+    div.innerHTML = `
+      <h3 id="info-toggle">
+        Edmonton–Prince Rupert Pipeline
+        <span class="toggle-icon" id="toggle-icon">▼</span>
+      </h3>
+      <div class="info-body" id="info-body">
+        <table>
+          <tr><td>Route</td><td>1,715 km</td></tr>
+          <tr><td>Capacity</td><td>900,000 bpd</td></tr>
+          <tr><td>Max Elevation</td><td>875 m (Pine Pass)</td></tr>
+          <tr><td>Pipe</td><td>36" API 5L X70</td></tr>
+          <tr><td>Pump Stations</td><td>15</td></tr>
+          <tr><td>HDD Crossings</td><td>16 total (5 critical)</td></tr>
+          <tr><td>Block Valves</td><td>30</td></tr>
+          <tr><td>Est. Cost</td><td>~$24.8B CAD</td></tr>
+          <tr><td>Indigenous Nations</td><td>~34</td></tr>
+        </table>
+      </div>`;
+    L.DomEvent.disableClickPropagation(div);
+
+    // Toggle collapse
+    div.querySelector('#info-toggle').addEventListener('click', () => {
+      const body = div.querySelector('#info-body');
+      const icon = div.querySelector('#toggle-icon');
+      const collapsed = body.style.display === 'none';
+      body.style.display = collapsed ? '' : 'none';
+      icon.textContent  = collapsed ? '▼' : '▲';
+    });
+
+    return div;
+  },
+});
+
+new InfoControl().addTo(map);
+
+// ─────────────────────────── LEGEND ─────────────────────────────
+
+const LegendControl = L.Control.extend({
+  options: { position: 'bottomright' },
+  onAdd() {
+    const div = L.DomUtil.create('div', 'legend-panel');
+    div.innerHTML = `
+      <h4>Legend</h4>
+      <div class="legend-section-title">Pipeline</div>
+      <div class="legend-item">
+        <span class="legend-line" style="background:#e53935;"></span>
+        Standard Pipeline
+      </div>
+      <div class="legend-item">
+        <span class="legend-line dashed"></span>
+        Micro-Optimized Zone
+      </div>
+      <div class="legend-section-title">Markers</div>
+      <div class="legend-item">
+        <span class="legend-circle" style="background:#e53935;"></span>
+        Waypoint
+      </div>
+      <div class="legend-item">
+        <span class="legend-circle" style="background:#ffd700; border-color:#b8860b;"></span>
+        Pump Station
+      </div>
+      <div class="legend-item">
+        <span class="legend-circle" style="background:#1e88e5; border-color:#1565c0;"></span>
+        HDD Crossing
+      </div>
+      <div class="legend-section-title">Indigenous Territories</div>
+      <div class="legend-item">
+        <span class="legend-swatch" style="background:#3388ff;"></span>
+        Treaty 6
+      </div>
+      <div class="legend-item">
+        <span class="legend-swatch" style="background:#33cc33;"></span>
+        Treaty 8 AB
+      </div>
+      <div class="legend-item">
+        <span class="legend-swatch" style="background:#9933ff;"></span>
+        Treaty 8 BC / Carrier Sekani
+      </div>
+      <div class="legend-item">
+        <span class="legend-swatch" style="background:#ff3333;"></span>
+        <strong>Wet'suwet'en ⚠</strong>
+      </div>
+      <div class="legend-item">
+        <span class="legend-swatch" style="background:#ff9933;"></span>
+        <strong>Gitxsan ⚠</strong>
+      </div>
+      <div class="legend-item">
+        <span class="legend-swatch" style="background:#33cccc;"></span>
+        Kitselas/Kitsumkalum
+      </div>
+      <div class="legend-item">
+        <span class="legend-swatch" style="background:#ffcc33;"></span>
+        Tsimshian
+      </div>`;
+    L.DomEvent.disableClickPropagation(div);
+    return div;
+  },
+});
+
+new LegendControl().addTo(map);
+
+// ─────────────────────────── LAYER CONTROLS ─────────────────────
+
+const baseLayers = {
+  "OpenStreetMap": osmLayer,
+  "OpenTopoMap":   topoLayer,
+};
+
+const overlays = {
+  "Pipeline Route":         pipelineLayer,
+  "Waypoints":              waypointLayer,
+  "Pump Stations":          pumpLayer,
+  "HDD Crossings":          hddLayer,
+  "Indigenous Territories": territoryLayer,
+};
+
+L.control.layers(baseLayers, overlays, { position: 'topright', collapsed: false }).addTo(map);
+
+// ─────────────────────── ELEVATION PROFILE ──────────────────────
+
+(function drawElevation() {
+  const canvas = document.getElementById('elevation-canvas');
+  // Set actual pixel dimensions
+  canvas.width  = canvas.offsetWidth  || 800;
+  canvas.height = canvas.offsetHeight || 200;
+
+  const ctx   = canvas;
+  const c     = ctx.getContext('2d');
+  const W     = canvas.width;
+  const H     = canvas.height;
+
+  const PAD_LEFT   = 52;
+  const PAD_RIGHT  = 20;
+  const PAD_TOP    = 30;
+  const PAD_BOTTOM = 36;
+
+  const plotW = W - PAD_LEFT - PAD_RIGHT;
+  const plotH = H - PAD_TOP  - PAD_BOTTOM;
+
+  const MAX_KM   = 1715;
+  const MAX_ELEV = 950;
+
+  // Add Pine Pass virtual point between Chetwynd (km 590) and Kennedy (km 710)
+  const elevData = [
+    ...waypoints.slice(0, 9),          // 0-8: Edmonton .. Chetwynd
+    { km: 660, elev: 875, name: "Pine Pass" }, // virtual
+    ...waypoints.slice(9),             // 9-28: Kennedy .. Prince Rupert
+  ];
+
+  function xOf(km)   { return PAD_LEFT + (km / MAX_KM) * plotW; }
+  function yOf(elev) { return PAD_TOP  + plotH - (elev / MAX_ELEV) * plotH; }
+
+  // Background
+  c.fillStyle = '#fff';
+  c.fillRect(0, 0, W, H);
+
+  // Title
+  c.fillStyle = '#1a1a2e';
+  c.font      = 'bold 13px sans-serif';
+  c.textAlign = 'center';
+  c.fillText('Elevation Profile — Edmonton to Prince Rupert (1,715 km)', W / 2, 16);
+
+  // Grid lines and Y-axis labels
+  c.strokeStyle = '#e0e0e0';
+  c.lineWidth   = 1;
+  c.fillStyle   = '#555';
+  c.font        = '11px sans-serif';
+  c.textAlign   = 'right';
+
+  for (let e = 0; e <= MAX_ELEV; e += 200) {
+    const y = yOf(e);
+    c.beginPath();
+    c.moveTo(PAD_LEFT, y);
+    c.lineTo(PAD_LEFT + plotW, y);
+    c.stroke();
+    c.fillText(e + 'm', PAD_LEFT - 4, y + 4);
+  }
+
+  // X-axis labels
+  c.textAlign = 'center';
+  for (let km = 0; km <= MAX_KM; km += 200) {
+    const x = xOf(km);
+    c.beginPath();
+    c.strokeStyle = '#e0e0e0';
+    c.moveTo(x, PAD_TOP);
+    c.lineTo(x, PAD_TOP + plotH);
+    c.stroke();
+    c.fillStyle = '#555';
+    c.fillText(km + ' km', x, H - PAD_BOTTOM + 14);
+  }
+
+  // Axes
+  c.strokeStyle = '#333';
+  c.lineWidth   = 1.5;
+  c.beginPath();
+  c.moveTo(PAD_LEFT, PAD_TOP);
+  c.lineTo(PAD_LEFT, PAD_TOP + plotH);
+  c.lineTo(PAD_LEFT + plotW, PAD_TOP + plotH);
+  c.stroke();
+
+  // Draw filled area + line in two color segments
+  function drawSegment(data, startI, endI, color, dashed) {
+    if (startI >= endI) return;
+    const pts = data.slice(startI, endI + 1);
+
+    // Filled area
+    c.beginPath();
+    c.moveTo(xOf(pts[0].km), yOf(0));
+    pts.forEach(p => c.lineTo(xOf(p.km), yOf(p.elev)));
+    c.lineTo(xOf(pts[pts.length - 1].km), yOf(0));
+    c.closePath();
+    c.fillStyle = color.replace(')', ', 0.15)').replace('rgb', 'rgba');
+    // Use hex-based fill with opacity instead
+    c.globalAlpha = 0.15;
+    c.fillStyle = color;
+    c.fill();
+    c.globalAlpha = 1;
+
+    // Line
+    c.beginPath();
+    if (dashed) c.setLineDash([8, 5]);
+    else        c.setLineDash([]);
+    c.strokeStyle = color;
+    c.lineWidth   = 2.5;
+    pts.forEach((p, i) => i === 0 ? c.moveTo(xOf(p.km), yOf(p.elev)) : c.lineTo(xOf(p.km), yOf(p.elev)));
+    c.stroke();
+    c.setLineDash([]);
+  }
+
+  // Standard 1: index 0..indexOf first point km>=1185
+  const microStartI = elevData.findIndex(p => p.km >= 1185);
+  const microEndI   = elevData.findIndex(p => p.km >= 1475);
+
+  drawSegment(elevData, 0,           microStartI, '#e53935', false);
+  drawSegment(elevData, microStartI, microEndI,   '#f97316', true);
+  drawSegment(elevData, microEndI,   elevData.length - 1, '#e53935', false);
+
+  // Labels for high points
+  const labelPoints = [
+    { km: 270,  elev: 870,  text: 'Fox Creek 870m' },
+    { km: 660,  elev: 875,  text: 'Pine Pass 875m' },
+    { km: 1130, elev: 850,  text: 'Endako 850m'    },
+  ];
+
+  c.font      = 'bold 10px sans-serif';
+  c.fillStyle = '#1a1a2e';
+  c.textAlign = 'center';
+
+  labelPoints.forEach(lp => {
+    const x = xOf(lp.km);
+    const y = yOf(lp.elev);
+    c.beginPath();
+    c.arc(x, y, 4, 0, Math.PI * 2);
+    c.fillStyle = '#e53935';
+    c.fill();
+    c.fillStyle = '#1a1a2e';
+    c.fillText(lp.text, x, y - 8);
+  });
+})();
+</script>
+</body>
+</html>
