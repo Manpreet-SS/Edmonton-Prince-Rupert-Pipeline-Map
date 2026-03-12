@@ -142,74 +142,80 @@
 // ───────────────────────────── DATA ─────────────────────────────
 
 const waypoints = [
-  { name: "Edmonton",              lat: 53.5461, lon: -113.4937, elev: 668,  km: 0,    desc: "Start / Origin", special: "Tank Farm — PS-1" },
-  { name: "Spruce Grove",          lat: 53.5451, lon: -113.9009, elev: 690,  km: 30,   desc: "Standard section", special: "" },
-  { name: "Manly Corner",          lat: 53.5714, lon: -114.2200, elev: 700,  km: 55,   desc: "Standard section", special: "" },
-  { name: "Onoway",                lat: 53.7081, lon: -114.2305, elev: 712,  km: 70,   desc: "Standard section", special: "" },
-  { name: "Whitecourt",            lat: 54.1424, lon: -115.6831, elev: 782,  km: 180,  desc: "Standard section", special: "PS-2 Booster" },
-  { name: "Two Creeks",            lat: 54.2600, lon: -116.0800, elev: 830,  km: 218,  desc: "Standard section", special: "" },
-  { name: "Fox Creek",             lat: 54.3980, lon: -116.8030, elev: 870,  km: 270,  desc: "Standard section", special: "PS-3 Booster" },
-  { name: "Little Smoky",          lat: 54.7700, lon: -117.0300, elev: 810,  km: 313,  desc: "Standard section", special: "" },
-  { name: "Valleyview",            lat: 55.0686, lon: -117.2900, elev: 760,  km: 355,  desc: "Standard section", special: "PS-4 Booster" },
-  { name: "Grande Prairie",        lat: 55.1707, lon: -118.7946, elev: 669,  km: 460,  desc: "Standard section", special: "PS-5 Booster + Pig Launcher" },
-  { name: "Beaverlodge",           lat: 55.2141, lon: -119.4352, elev: 682,  km: 491,  desc: "Standard section", special: "" },
-  { name: "Hythe",                 lat: 55.2833, lon: -119.4833, elev: 695,  km: 500,  desc: "Standard section", special: "" },
-  { name: "Demmitt",               lat: 55.2700, lon: -119.8800, elev: 698,  km: 516,  desc: "Standard section", special: "" },
-  { name: "Tupper",                lat: 55.4700, lon: -120.0700, elev: 665,  km: 524,  desc: "Standard section", special: "" },
-  { name: "Dawson Creek",          lat: 55.7596, lon: -120.2353, elev: 665,  km: 530,  desc: "Standard section", special: "" },
-  { name: "Groundbirch",           lat: 55.6500, lon: -120.8700, elev: 630,  km: 548,  desc: "Standard section", special: "" },
-  { name: "Chetwynd",              lat: 55.6976, lon: -121.6322, elev: 610,  km: 590,  desc: "Standard section", special: "PS-6 Booster (Pre-Mountain)" },
-  { name: "Pine Valley",           lat: 55.5000, lon: -121.9300, elev: 695,  km: 628,  desc: "Standard section", special: "" },
-  { name: "Lemoray",               lat: 55.3400, lon: -122.1400, elev: 802,  km: 648,  desc: "Standard section", special: "" },
-  { name: "Kennedy",               lat: 55.2000, lon: -122.2000, elev: 730,  km: 710,  desc: "Standard section", special: "PS-7 Booster / Pressure Control" },
-  { name: "Bear Lake",             lat: 54.9500, lon: -122.6500, elev: 700,  km: 750,  desc: "Standard section", special: "" },
-  { name: "Salmon Valley",         lat: 54.2500, lon: -122.7500, elev: 640,  km: 810,  desc: "Standard section", special: "PS-8 Booster" },
-  { name: "Prince George",         lat: 53.9171, lon: -122.7497, elev: 575,  km: 990,  desc: "Standard section", special: "PS-9 MAJOR HUB + Tank + Pig Station" },
-  { name: "Vanderhoof",            lat: 54.0166, lon: -124.0035, elev: 690,  km: 1055, desc: "Standard section", special: "PS-10 Booster" },
-  { name: "Fort Fraser",           lat: 54.0500, lon: -124.8500, elev: 737,  km: 1095, desc: "Standard section", special: "" },
-  { name: "Fraser Lake",           lat: 54.0500, lon: -124.9200, elev: 700,  km: 1108, desc: "Standard section", special: "" },
-  { name: "Endako",                lat: 54.0833, lon: -125.0333, elev: 850,  km: 1130, desc: "Standard section", special: "" },
-  { name: "Burns Lake",            lat: 54.2300, lon: -125.7600, elev: 735,  km: 1185, desc: "Standard section / Micro-opt start", special: "PS-11 Booster" },
-  { name: "Broman Lake",           lat: 54.2300, lon: -126.0000, elev: 700,  km: 1210, desc: "Micro-optimized zone", special: "" },
-  { name: "Topley",                lat: 54.3800, lon: -126.2000, elev: 670,  km: 1232, desc: "Micro-optimized zone", special: "" },
-  { name: "Houston",               lat: 54.3966, lon: -126.6410, elev: 600,  km: 1260, desc: "Micro-optimized zone", special: "PS-12 Booster + Pig Launcher; HDD-1: Bulkley River" },
-  { name: "Barrett Lake",          lat: 54.4300, lon: -126.7400, elev: 580,  km: 1270, desc: "Micro-optimized zone", special: "" },
-  { name: "North Bulkley",         lat: 54.4500, lon: -126.8000, elev: 560,  km: 1280, desc: "Micro-optimized zone", special: "" },
-  { name: "Round Lake",            lat: 54.5000, lon: -127.0000, elev: 520,  km: 1305, desc: "Micro-optimized zone", special: "" },
-  { name: "Evelyn",                lat: 54.5200, lon: -127.1200, elev: 500,  km: 1325, desc: "Micro-optimized zone", special: "" },
-  { name: "Smithers",              lat: 54.7818, lon: -127.1677, elev: 495,  km: 1335, desc: "Micro-optimized zone", special: "" },
-  { name: "Witset",                lat: 54.8497, lon: -127.3706, elev: 430,  km: 1355, desc: "Micro-optimized zone", special: "" },
-  { name: "South Hazelton",        lat: 55.0700, lon: -127.6700, elev: 280,  km: 1380, desc: "Micro-optimized zone", special: "PS-13 Pressure Reducing; HDD-3: Bulkley-Skeena Confluence" },
-  { name: "Hazelton",              lat: 55.2558, lon: -127.6692, elev: 310,  km: 1383, desc: "Micro-optimized zone", special: "" },
-  { name: "Kitwanga",              lat: 55.1000, lon: -127.9800, elev: 255,  km: 1395, desc: "Micro-optimized zone", special: "" },
-  { name: "Woodcock",              lat: 54.9800, lon: -128.0000, elev: 210,  km: 1400, desc: "Micro-optimized zone", special: "" },
-  { name: "Doreen",                lat: 54.9600, lon: -128.1600, elev: 220,  km: 1407, desc: "Micro-optimized zone", special: "" },
-  { name: "Pacific",               lat: 54.7800, lon: -128.3100, elev: 185,  km: 1413, desc: "Micro-optimized zone", special: "" },
-  { name: "Usk",                   lat: 54.6300, lon: -128.4200, elev: 160,  km: 1420, desc: "Micro-optimized zone", special: "" },
-  { name: "Kitselas",              lat: 54.5700, lon: -128.4900, elev: 125,  km: 1455, desc: "Micro-optimized zone", special: "" },
-  { name: "Terrace",               lat: 54.5164, lon: -128.5997, elev: 70,   km: 1475, desc: "Micro-opt end / Standard section", special: "PS-14 Pressure Reducing + Booster" },
-  { name: "Ecstew",                lat: 54.4600, lon: -128.7400, elev: 55,   km: 1492, desc: "Standard section", special: "" },
-  { name: "Skeena",                lat: 54.4500, lon: -128.9000, elev: 40,   km: 1510, desc: "Standard section", special: "" },
-  { name: "Galloway Rapids Bridge",lat: 54.3500, lon: -129.2000, elev: 15,   km: 1540, desc: "Standard section", special: "Bridge crossing" },
-  { name: "Prince Rupert",         lat: 54.3150, lon: -130.3208, elev: 0,    km: 1715, desc: "Terminal", special: "PS-15 Terminal + Tank Farm + Marine Loading" },
+  { name: "Edmonton",              lat: 53.5612, lon: -113.3634, elev: 668,  km: 0,    desc: "Start / Origin", special: "Tank Farm — PS-1" },
+  { name: "Spruce Grove",          lat: 53.5696, lon: -113.9035, elev: 672,  km: 30,   desc: "Standard section", special: "" },
+  { name: "Manly Corner",          lat: 53.5714, lon: -114.2200, elev: 728,  km: 55,   desc: "Standard section", special: "" },
+  { name: "Onoway",                lat: 53.7081, lon: -114.2305, elev: 715,  km: 70,   desc: "Standard section", special: "" },
+  { name: "Sangudo",               lat: 53.8924, lon: -114.8910, elev: 682,  km: 120,  desc: "Standard section", special: "" },
+  { name: "Whitecourt",            lat: 54.1687, lon: -115.7318, elev: 740,  km: 180,  desc: "Standard section", special: "PS-2 Booster" },
+  { name: "Two Creeks",            lat: 54.3029, lon: -116.3659, elev: 889,  km: 218,  desc: "Standard section", special: "" },
+  { name: "Fox Creek",             lat: 54.3980, lon: -116.8282, elev: 840,  km: 270,  desc: "Standard section", special: "PS-3 Booster" },
+  { name: "Little Smoky",          lat: 54.7400, lon: -117.1848, elev: 690,  km: 313,  desc: "Standard section", special: "" },
+  { name: "Valleyview",            lat: 55.0647, lon: -117.2877, elev: 730,  km: 355,  desc: "Standard section", special: "PS-4 Booster" },
+  { name: "Debolt",                lat: 55.2107, lon: -118.0221, elev: 643,  km: 407,  desc: "Standard section", special: "" },
+  { name: "Grande Prairie",        lat: 55.2267, lon: -118.8198, elev: 680,  km: 460,  desc: "Standard section", special: "PS-5 Booster + Pig Launcher" },
+  { name: "Beaverlodge",           lat: 55.2097, lon: -119.4316, elev: 721,  km: 491,  desc: "Standard section", special: "" },
+  { name: "Hythe",                 lat: 55.3276, lon: -119.5578, elev: 744,  km: 500,  desc: "Standard section", special: "" },
+  { name: "Demmitt",               lat: 55.4565, lon: -119.8971, elev: 830,  km: 516,  desc: "Standard section", special: "" },
+  { name: "Tupper",                lat: 55.5134, lon: -120.0498, elev: 760,  km: 524,  desc: "Standard section", special: "" },
+  { name: "Dawson Creek",          lat: 55.7684, lon: -120.2521, elev: 670,  km: 530,  desc: "Standard section", special: "" },
+  { name: "Groundbirch",           lat: 55.7815, lon: -120.9223, elev: 730,  km: 548,  desc: "Standard section", special: "" },
+  { name: "Chetwynd",              lat: 55.6933, lon: -121.6426, elev: 630,  km: 590,  desc: "Standard section", special: "PS-6 Booster (Pre-Mountain)" },
+  { name: "Pine Valley",           lat: 55.6305, lon: -122.0885, elev: 660,  km: 628,  desc: "Standard section", special: "" },
+  { name: "Lemoray",               lat: 55.5380, lon: -122.4840, elev: 750,  km: 648,  desc: "Standard section", special: "" },
+  { name: "Kennedy",               lat: 55.1394, lon: -122.8280, elev: 750,  km: 710,  desc: "Standard section", special: "PS-7 Booster / Pressure Control" },
+  { name: "Bear Lake",             lat: 54.4946, lon: -122.6683, elev: 725,  km: 750,  desc: "Standard section", special: "" },
+  { name: "Salmon Valley",         lat: 54.1028, lon: -122.6503, elev: 666,  km: 810,  desc: "Standard section", special: "PS-8 Booster" },
+  { name: "Prince George",         lat: 53.8658, lon: -122.7888, elev: 690,  km: 990,  desc: "Standard section", special: "PS-9 MAJOR HUB + Tank + Pig Station" },
+  { name: "Vanderhoof",            lat: 54.0130, lon: -124.0224, elev: 645,  km: 1055, desc: "Standard section", special: "PS-10 Booster" },
+  { name: "Fort Fraser",           lat: 54.0589, lon: -124.5392, elev: 720,  km: 1095, desc: "Standard section", special: "" },
+  { name: "Fraser Lake",           lat: 54.0547, lon: -124.8489, elev: 710,  km: 1108, desc: "Standard section", special: "" },
+  { name: "Endako",                lat: 54.0855, lon: -125.0217, elev: 690,  km: 1130, desc: "Standard section", special: "" },
+  { name: "Burns Lake",            lat: 54.2345, lon: -125.7668, elev: 750,  km: 1185, desc: "Standard section / Micro-opt start", special: "PS-11 Booster" },
+  { name: "Broman Lake",           lat: 54.4127, lon: -126.0874, elev: 730,  km: 1210, desc: "Micro-optimized zone", special: "" },
+  { name: "Topley",                lat: 54.5060, lon: -126.2967, elev: 680,  km: 1232, desc: "Micro-optimized zone", special: "" },
+  { name: "North Bulkley",         lat: 54.4853, lon: -126.4933, elev: 640,  km: 1280, desc: "Micro-optimized zone", special: "" },
+  { name: "Houston",               lat: 54.3940, lon: -126.6695, elev: 600,  km: 1260, desc: "Micro-optimized zone", special: "PS-12 Booster + Pig Launcher; HDD-1: Bulkley River" },
+  { name: "Barrett Lake",          lat: 54.4590, lon: -126.7450, elev: 770,  km: 1270, desc: "Micro-optimized zone", special: "" },
+  { name: "Round Lake",            lat: 54.6463, lon: -126.9345, elev: 580,  km: 1305, desc: "Micro-optimized zone", special: "" },
+  { name: "Smithers",              lat: 54.7743, lon: -127.1786, elev: 495,  km: 1335, desc: "Micro-optimized zone", special: "" },
+  { name: "Evelyn",                lat: 54.8768, lon: -127.2547, elev: 465,  km: 1340, desc: "Micro-optimized zone", special: "" },
+  { name: "Witset",                lat: 55.0388, lon: -127.3528, elev: 430,  km: 1355, desc: "Micro-optimized zone", special: "" },
+  { name: "Bulkley Canyon",        lat: 55.2096, lon: -127.4384, elev: 418,  km: 1370, desc: "Micro-optimized zone", special: "" },
+  { name: "South Hazelton",        lat: 55.2159, lon: -127.6515, elev: 320,  km: 1380, desc: "Micro-optimized zone", special: "PS-13 Pressure Reducing; HDD-3: Bulkley-Skeena Confluence" },
+  { name: "Kitseguecla",           lat: 55.0850, lon: -127.8325, elev: 240,  km: 1383, desc: "Micro-optimized zone", special: "" },
+  { name: "Kitwanga",              lat: 55.1068, lon: -128.1028, elev: 180,  km: 1395, desc: "Micro-optimized zone", special: "" },
+  { name: "Woodcock",              lat: 55.0662, lon: -128.2342, elev: 165,  km: 1400, desc: "Micro-optimized zone", special: "" },
+  { name: "Doreen",                lat: 54.8407, lon: -128.3441, elev: 125,  km: 1407, desc: "Micro-optimized zone", special: "" },
+  { name: "Pacific",               lat: 54.7684, lon: -128.2721, elev: 120,  km: 1413, desc: "Micro-optimized zone", special: "" },
+  { name: "Usk",                   lat: 54.6369, lon: -128.4138, elev: 90,   km: 1420, desc: "Micro-optimized zone", special: "" },
+  { name: "Kitselas",              lat: 54.5643, lon: -128.4611, elev: 78,   km: 1455, desc: "Micro-optimized zone", special: "" },
+  { name: "Terrace",               lat: 54.5196, lon: -128.6568, elev: 70,   km: 1475, desc: "Micro-opt end / Standard section", special: "PS-14 Pressure Reducing + Booster" },
+  { name: "Ecstew",                lat: 54.3895, lon: -129.0837, elev: 62,   km: 1492, desc: "Standard section", special: "" },
+  { name: "McLean Point",          lat: 54.1871, lon: -129.6216, elev: 14,   km: 1500, desc: "Standard section", special: "" },
+  { name: "Skeena",                lat: 54.2384, lon: -129.8577, elev: 7,    km: 1510, desc: "Standard section", special: "" },
+  { name: "K shian bend",          lat: 54.2016, lon: -129.9708, elev: 13,   km: 1520, desc: "Standard section", special: "" },
+  { name: "Galloway Rapids Bridge",lat: 54.2559, lon: -130.2604, elev: 13,   km: 1650, desc: "Standard section", special: "Bridge crossing" },
+  { name: "P. Rupert",             lat: 54.3202, lon: -130.2751, elev: 46,   km: 1700, desc: "Standard section", special: "" },
+  { name: "Prince Rupert",         lat: 54.2907, lon: -130.3510, elev: 0,    km: 1715, desc: "Terminal", special: "PS-15 Terminal + Tank Farm + Marine Loading" },
 ];
 
 const pumpStations = [
-  { id: "PS-1",  name: "Edmonton",       lat: 53.5461, lon: -113.4937, type: "Origin / Tank Farm",                         km: 0    },
-  { id: "PS-2",  name: "Whitecourt",     lat: 54.1424, lon: -115.6831, type: "Booster",                                    km: 180  },
-  { id: "PS-3",  name: "Fox Creek",      lat: 54.3980, lon: -116.8030, type: "Booster",                                    km: 270  },
-  { id: "PS-4",  name: "Valleyview",     lat: 55.0686, lon: -117.2900, type: "Booster",                                    km: 355  },
-  { id: "PS-5",  name: "Grande Prairie", lat: 55.1707, lon: -118.7946, type: "Booster + Pig Launcher",                     km: 460  },
-  { id: "PS-6",  name: "Chetwynd",       lat: 55.6976, lon: -121.6322, type: "Booster (Pre-Mountain)",                     km: 590  },
-  { id: "PS-7",  name: "Kennedy",        lat: 55.2000, lon: -122.2000, type: "Booster / Pressure Control",                 km: 710  },
-  { id: "PS-8",  name: "Salmon Valley",  lat: 54.2500, lon: -122.7500, type: "Booster",                                    km: 810  },
-  { id: "PS-9",  name: "Prince George",  lat: 53.9171, lon: -122.7497, type: "MAJOR HUB + Tank + Pig Station",             km: 990  },
-  { id: "PS-10", name: "Vanderhoof",     lat: 54.0166, lon: -124.0035, type: "Booster",                                    km: 1055 },
-  { id: "PS-11", name: "Burns Lake",     lat: 54.2300, lon: -125.7600, type: "Booster",                                    km: 1185 },
-  { id: "PS-12", name: "Houston",        lat: 54.3966, lon: -126.6410, type: "Booster + Pig Launcher",                     km: 1260 },
-  { id: "PS-13", name: "South Hazelton", lat: 55.0700, lon: -127.6700, type: "Pressure Reducing",                          km: 1380 },
-  { id: "PS-14", name: "Terrace",        lat: 54.5164, lon: -128.5997, type: "Pressure Reducing + Booster",                km: 1475 },
-  { id: "PS-15", name: "Prince Rupert",  lat: 54.3150, lon: -130.3208, type: "Terminal + Tank Farm + Marine Loading",      km: 1715 },
+  { id: "PS-1",  name: "Edmonton",       lat: 53.5612, lon: -113.3634, type: "Origin / Tank Farm",                         km: 0    },
+  { id: "PS-2",  name: "Whitecourt",     lat: 54.1687, lon: -115.7318, type: "Booster",                                    km: 180  },
+  { id: "PS-3",  name: "Fox Creek",      lat: 54.3980, lon: -116.8282, type: "Booster",                                    km: 270  },
+  { id: "PS-4",  name: "Valleyview",     lat: 55.0647, lon: -117.2877, type: "Booster",                                    km: 355  },
+  { id: "PS-5",  name: "Grande Prairie", lat: 55.2267, lon: -118.8198, type: "Booster + Pig Launcher",                     km: 460  },
+  { id: "PS-6",  name: "Chetwynd",       lat: 55.6933, lon: -121.6426, type: "Booster (Pre-Mountain)",                     km: 590  },
+  { id: "PS-7",  name: "Kennedy",        lat: 55.1394, lon: -122.8280, type: "Booster / Pressure Control",                 km: 710  },
+  { id: "PS-8",  name: "Salmon Valley",  lat: 54.1028, lon: -122.6503, type: "Booster",                                    km: 810  },
+  { id: "PS-9",  name: "Prince George",  lat: 53.8658, lon: -122.7888, type: "MAJOR HUB + Tank + Pig Station",             km: 990  },
+  { id: "PS-10", name: "Vanderhoof",     lat: 54.0130, lon: -124.0224, type: "Booster",                                    km: 1055 },
+  { id: "PS-11", name: "Burns Lake",     lat: 54.2345, lon: -125.7668, type: "Booster",                                    km: 1185 },
+  { id: "PS-12", name: "Houston",        lat: 54.3940, lon: -126.6695, type: "Booster + Pig Launcher",                     km: 1260 },
+  { id: "PS-13", name: "South Hazelton", lat: 55.2159, lon: -127.6515, type: "Pressure Reducing",                          km: 1380 },
+  { id: "PS-14", name: "Terrace",        lat: 54.5196, lon: -128.6568, type: "Pressure Reducing + Booster",                km: 1475 },
+  { id: "PS-15", name: "Prince Rupert",  lat: 54.2907, lon: -130.3510, type: "Terminal + Tank Farm + Marine Loading",      km: 1715 },
 ];
 
 const hddCrossings = [
@@ -255,16 +261,16 @@ const territoryLayer    = L.layerGroup();
 
 // ──────────────────── PIPELINE ROUTE LINES ──────────────────────
 
-// Standard section 1: waypoints 0–27 (indices, Km 0–1185)
-const stdCoords1 = waypoints.slice(0, 28).map(w => [w.lat, w.lon]);
+// Standard section 1: waypoints 0–30 (indices, Km 0–1185)
+const stdCoords1 = waypoints.slice(0, 31).map(w => [w.lat, w.lon]);
 L.polyline(stdCoords1, { color: '#e53935', weight: 4, opacity: 0.9 }).addTo(pipelineLayer);
 
-// Micro-optimized zone: waypoints 27–45 (Km 1185–1475, Burns Lake to Terrace)
-const microCoords = waypoints.slice(27, 45).map(w => [w.lat, w.lon]);
+// Micro-optimized zone: waypoints 30–48 (Km 1185–1475, Burns Lake to Terrace)
+const microCoords = waypoints.slice(30, 49).map(w => [w.lat, w.lon]);
 L.polyline(microCoords, { color: '#f97316', weight: 5, opacity: 0.95, dashArray: '10, 7' }).addTo(pipelineLayer);
 
-// Standard section 2: waypoints 45–49 (Km 1475–1715)
-const stdCoords2 = waypoints.slice(45, 50).map(w => [w.lat, w.lon]);
+// Standard section 2: waypoints 48–55 (Km 1475–1715)
+const stdCoords2 = waypoints.slice(48, 56).map(w => [w.lat, w.lon]);
 L.polyline(stdCoords2, { color: '#e53935', weight: 4, opacity: 0.9 }).addTo(pipelineLayer);
 
 pipelineLayer.addTo(map);
@@ -516,9 +522,9 @@ L.control.layers(baseLayers, overlays, { position: 'topright', collapsed: false 
 
   // Add Pine Pass virtual point between Lemoray (km 648) and Kennedy (km 710)
   const elevData = [
-    ...waypoints.slice(0, 19),         // 0-18: Edmonton .. Lemoray
+    ...waypoints.slice(0, 22),         // 0-21: Edmonton .. Lemoray
     { km: 660, elev: 875, name: "Pine Pass" }, // virtual
-    ...waypoints.slice(19),            // 19-49: Kennedy .. Prince Rupert
+    ...waypoints.slice(22),            // 22-49: Kennedy .. Prince Rupert
   ];
 
   function xOf(km)   { return PAD_LEFT + (km / MAX_KM) * plotW; }
@@ -609,9 +615,9 @@ L.control.layers(baseLayers, overlays, { position: 'topright', collapsed: false 
 
   // Labels for high points
   const labelPoints = [
-    { km: 270,  elev: 870,  text: 'Fox Creek 870m' },
+    { km: 270,  elev: 870,  text: 'Fox Creek 840m' },
     { km: 660,  elev: 875,  text: 'Pine Pass 875m' },
-    { km: 1130, elev: 850,  text: 'Endako 850m'    },
+    { km: 1185, elev: 750,  text: 'Burns Lake 750m'    },
   ];
 
   c.font      = 'bold 10px sans-serif';
